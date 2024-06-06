@@ -1,53 +1,47 @@
-#include <bits/stdc++.h>
-#define MAX 1000001
+#include <iostream>
+#include <vector>
+
 using namespace std;
 
-const int NOT_ADOPTER = 0;
-const int EARLY_ADOPTER = 1;
+vector<int> graph[1000001];
+bool visited[1000001];
+int n, res = 0;
 
-int N;
-vector<int> adj[MAX];
-int visited[MAX];
-int early_adopters;
+void input(){
+    cin>>n;
 
-void init() {
-	cin >> N;
-	int u, v;
-	for(int i = 0; i < N - 1; i++) {
-		cin >> u >> v;
-		adj[u].push_back(v);
-		adj[v].push_back(u);
-	}
+    for(int i = 0; i < n; i++){
+        int start, end; cin>>start>>end;
+        graph[start].push_back(end);
+        graph[end].push_back(start);
+    }
 }
 
-int dfs(int here) {
-	visited[here] = true;
-
-	int children[2] = {0, 0};
-	for(int i = 0; i < adj[here].size(); i++) {
-		int next = adj[here][i];
-		if(!visited[next]) {
-			children[dfs(next)]++;
-		}
-	}
-
-	if(children[NOT_ADOPTER]) {
-		early_adopters += 1;
-		return EARLY_ADOPTER;
-	}
-	
-	return NOT_ADOPTER;
+int dfs(int start_node){
+    visited[start_node]  = true;
+    bool adopter = false;
+    if(graph[start_node].size() == 0) return 0;
+    else{
+        for(int i = 0; i < graph[start_node].size(); i++){
+            if(!visited[graph[start_node][i]]){
+                if(dfs(graph[start_node][i]) == 0){
+                    if(!adopter) {
+                        adopter = true;
+                        res++;
+                    }
+                }
+            }
+        }
+    }
+    if(adopter) return 1;
+    else return 0;
 }
+int main(){
+    ios_base::sync_with_stdio(false);
+    cin.tie(0);
 
-void solve() {
-	early_adopters = 0;
-	dfs(1);
-	cout << early_adopters;
-}
-
-int main() {
-	init();
-	solve();
-	
-	return 0;	
+    input();
+    dfs(1);
+    cout<<res;
+    return 0;
 }
